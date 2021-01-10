@@ -25,6 +25,9 @@ using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Configuration;
 using ClassicUO.Data;
+// ## BEGIN - END ## //
+using ClassicUO.Game.InteropServices.Runtime.External;
+// ## BEGIN - END ## //
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
@@ -39,9 +42,17 @@ namespace ClassicUO.Game.GameObjects
     {
         private readonly Dictionary<BuffIconType, BuffIcon> _buffIcons = new Dictionary<BuffIconType, BuffIcon>();
 
+        // ## BEGIN - END ## //
+        public BandageGump BandageTimer; //##BandageGump##//
+        // ## BEGIN - END ## //
+
         public PlayerMobile(uint serial) : base(serial)
         {
             Skills = new Skill[SkillsLoader.Instance.SkillsCount];
+
+            // ## BEGIN - END ## //
+            UIManager.Add(BandageTimer = new BandageGump()); //##BandageGump##//
+            // ## BEGIN - END ## //
 
             for (int i = 0; i < Skills.Length; i++)
             {
@@ -281,7 +292,8 @@ namespace ClassicUO.Game.GameObjects
 
             if (equippedGraphic != 0)
             {
-                ushort[] graphics = { equippedGraphic, 0 };
+                ushort graphic0 = equippedGraphic;
+                ushort graphic1 = 0;
 
                 if (layerObject != null)
                 {
@@ -293,7 +305,7 @@ namespace ClassicUO.Game.GameObjects
 
                     if (TileDataLoader.Instance.StaticData[testGraphic].AnimID == imageID)
                     {
-                        graphics[1] = testGraphic;
+                        graphic1 = testGraphic;
                         count = 2;
                     }
                     else
@@ -302,14 +314,14 @@ namespace ClassicUO.Game.GameObjects
 
                         if (TileDataLoader.Instance.StaticData[testGraphic].AnimID == imageID)
                         {
-                            graphics[1] = testGraphic;
+                            graphic1 = testGraphic;
                             count = 2;
                         }
                     }
 
                     for (int i = 0; i < count; i++)
                     {
-                        ushort g = graphics[i];
+                        ushort g = i == 0 ? graphic0 : graphic1;
 
                         switch (g)
                         {
@@ -586,7 +598,7 @@ namespace ClassicUO.Game.GameObjects
                             case 0x1406:
                             case 0x1407: // War Maces
                                 Abilities[0] = Ability.CrushingBlow;
-                                Abilities[1] = Ability.BleedAttack;
+                                Abilities[1] = Ability.MortalStrike;
 
                                 goto done;
 
@@ -749,6 +761,13 @@ namespace ClassicUO.Game.GameObjects
                             case 0x26CD: // also Repeating Crossbows
                                 Abilities[0] = Ability.DoubleStrike;
                                 Abilities[1] = Ability.MovingShot;
+
+                                goto done;
+
+                            case 0x26CE:
+                            case 0x26CF: // paladin sword
+                                Abilities[0] = Ability.WhirlwindAttack;
+                                Abilities[1] = Ability.Disarm;
 
                                 goto done;
 
@@ -1058,6 +1077,7 @@ namespace ClassicUO.Game.GameObjects
 
                                 goto done;
 
+                            case 0x8FD:
                             case 0x4068: // Dual Short Axes
                                 Abilities[0] = Ability.DoubleStrike;
                                 Abilities[1] = Ability.InfectiousStrike;
@@ -1076,30 +1096,35 @@ namespace ClassicUO.Game.GameObjects
 
                                 goto done;
 
+                            case 0x904:
                             case 0x406D: // Dual Pointed Spear
                                 Abilities[0] = Ability.DoubleStrike;
                                 Abilities[1] = Ability.Disarm;
 
                                 goto done;
 
+                            case 0x903:
                             case 0x406E: // Disc Mace
                                 Abilities[0] = Ability.ArmorIgnore;
                                 Abilities[1] = Ability.Disarm;
 
                                 goto done;
 
+                            case 0x8FE:
                             case 0x4072: // Blood Blade
                                 Abilities[0] = Ability.BleedAttack;
                                 Abilities[1] = Ability.ParalyzingBlow;
 
                                 goto done;
 
+                            case 0x90B:
                             case 0x4074: // Dread Sword
                                 Abilities[0] = Ability.CrushingBlow;
                                 Abilities[1] = Ability.ConcussionBlow;
 
                                 goto done;
 
+                            case 0x908:
                             case 0x4075: // Gargish Talwar
                                 Abilities[0] = Ability.WhirlwindAttack;
                                 Abilities[1] = Ability.Dismount;
@@ -1124,96 +1149,112 @@ namespace ClassicUO.Game.GameObjects
 
                                 goto done;
 
+                            case 0x48B3:
                             case 0x48B2: // Gargish Axe
                                 Abilities[0] = Ability.CrushingBlow;
                                 Abilities[1] = Ability.Dismount;
 
                                 goto done;
 
+                            case 0x48B5:
                             case 0x48B4: // Gargish Bardiche
                                 Abilities[0] = Ability.ParalyzingBlow;
                                 Abilities[1] = Ability.Dismount;
 
                                 goto done;
 
+                            case 0x48B7:
                             case 0x48B6: // Gargish Butcher Knife
                                 Abilities[0] = Ability.InfectiousStrike;
                                 Abilities[1] = Ability.Disarm;
 
                                 goto done;
 
+                            case 0x48B9:
                             case 0x48B8: // Gargish Gnarled Staff
                                 Abilities[0] = Ability.ConcussionBlow;
                                 Abilities[1] = Ability.ParalyzingBlow;
 
                                 goto done;
 
+                            case 0x48BB:
                             case 0x48BA: // Gargish Katana
                                 Abilities[0] = Ability.DoubleStrike;
                                 Abilities[1] = Ability.ArmorIgnore;
 
                                 goto done;
 
+                            case 0x48BD:
                             case 0x48BC: // Gargish Kryss
                                 Abilities[0] = Ability.ArmorIgnore;
                                 Abilities[1] = Ability.InfectiousStrike;
 
                                 goto done;
 
+                            case 0x48BF:
                             case 0x48BE: // Gargish War Fork
                                 Abilities[0] = Ability.BleedAttack;
                                 Abilities[1] = Ability.Disarm;
 
                                 goto done;
 
+                            case 0x48CB:
                             case 0x48CA: // Gargish Lance
                                 Abilities[0] = Ability.Dismount;
                                 Abilities[1] = Ability.ConcussionBlow;
 
                                 goto done;
 
+                            case 0x481:
                             case 0x48C0: // Gargish War Hammer
                                 Abilities[0] = Ability.WhirlwindAttack;
                                 Abilities[1] = Ability.CrushingBlow;
 
                                 goto done;
 
+                            case 0x48C3:
                             case 0x48C2: // Gargish Maul
                                 Abilities[0] = Ability.CrushingBlow;
                                 Abilities[1] = Ability.ConcussionBlow;
 
                                 goto done;
 
+                            case 0x48C5:
                             case 0x48C4: // Gargish Scyte
                                 Abilities[0] = Ability.BleedAttack;
                                 Abilities[1] = Ability.ParalyzingBlow;
 
                                 goto done;
 
+                            case 0x48C7:
                             case 0x48C6: // Gargish Bone Harvester
                                 Abilities[0] = Ability.ParalyzingBlow;
                                 Abilities[1] = Ability.MortalStrike;
 
                                 goto done;
 
+                            case 0x48C9:
                             case 0x48C8: // Gargish Pike
                                 Abilities[0] = Ability.ParalyzingBlow;
                                 Abilities[1] = Ability.InfectiousStrike;
 
                                 goto done;
 
+                            case 0x48CC:
                             case 0x48CD: // Gargish Tessen
                                 Abilities[0] = Ability.Feint;
                                 Abilities[1] = Ability.Block;
 
                                 goto done;
 
+                            case 0x48CF:
                             case 0x48CE: // Gargish Tekagi
                                 Abilities[0] = Ability.DualWield;
                                 Abilities[1] = Ability.TalonStrike;
 
                                 goto done;
 
+                            case 0x48D1:
                             case 0x48D0: // Gargish Daisho
                                 Abilities[0] = Ability.Feint;
                                 Abilities[1] = Ability.DoubleStrike;
@@ -1266,7 +1307,7 @@ namespace ClassicUO.Game.GameObjects
 
             int max = 0;
 
-            foreach (Control control in UIManager.Gumps)
+            foreach (Gump control in UIManager.Gumps)
             {
                 if (control is UseAbilityButtonGump s)
                 {
@@ -1320,6 +1361,32 @@ namespace ClassicUO.Game.GameObjects
             }
         }
 
+        // ## BEGIN - END ## //
+        public void OpenCorpses(byte range)
+        {
+            foreach (var c in World.Items.Where(t => t.Graphic == 0x2006 && t.Distance <= range))
+            {
+                ManualOpenedCorpses.Add(c.Serial);
+                GameActions.DoubleClickQueued(c.Serial);
+            }
+        }
+        public void OpenCorpsesSafe(byte range)
+        {
+            foreach (var c in World.Items.Where(t => t.Graphic == 0x2006 && t.Distance <= range))
+            {
+                if (c.LootFlag == (ProfileManager.CurrentProfile.UOClassicCombatAL_SL_Gray | ProfileManager.CurrentProfile.UOClassicCombatAL_SL_Green | ProfileManager.CurrentProfile.UOClassicCombatAL_SL_Red))
+                {
+                    ManualOpenedCorpses.Add(c.Serial);
+                    GameActions.DoubleClickQueued(c.Serial); 
+                }
+                else
+                {
+                    c.AddMessage(MessageType.Regular, "This is not safe lootable!", 3, 33, true, TextType.OBJECT);
+                    continue;
+                }
+            }
+        }
+        // ## BEGIN - END ## //
 
         protected override void OnDirectionChanged()
         {
@@ -1384,7 +1451,7 @@ namespace ClassicUO.Game.GameObjects
 
         public void CloseRangedGumps()
         {
-            foreach (Control gump in UIManager.Gumps)
+            foreach (Gump gump in UIManager.Gumps)
             {
                 switch (gump)
                 {

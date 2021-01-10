@@ -21,6 +21,7 @@
 
 #endregion
 
+using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Network;
 
@@ -101,6 +102,9 @@ namespace ClassicUO.Game.UI.Gumps
 
             ButtonID = buttonid;
             ParentID = parentid;
+
+            UIManager.KeyboardFocusControl = _textBox;
+            _textBox.SetKeyboardFocus();
         }
 
         public byte ParentID { get; }
@@ -111,13 +115,13 @@ namespace ClassicUO.Game.UI.Gumps
             switch ((ButtonType) buttonID)
             {
                 case ButtonType.Ok:
-                    NetClient.Socket.Send(new PTextEntryDialogResponse(LocalSerial, ButtonID, _textBox.Text, true));
+                    NetClient.Socket.Send(new PTextEntryDialogResponse(LocalSerial, ParentID, ButtonID, _textBox.Text, true));
                     Dispose();
 
                     break;
 
                 case ButtonType.Cancel:
-                    NetClient.Socket.Send(new PTextEntryDialogResponse(LocalSerial, ButtonID, _textBox.Text, false));
+                    NetClient.Socket.Send(new PTextEntryDialogResponse(LocalSerial, ParentID, ButtonID, _textBox.Text, false));
                     Dispose();
 
                     break;

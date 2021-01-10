@@ -59,6 +59,10 @@ namespace ClassicUO.Game.UI.Gumps
             set => base.CanMove = value;
         }
 
+        public uint MasterGumpSerial { get; set; }
+
+
+
         public override void Update(double totalTime, double frameTime)
         {
             if (InvalidateContents)
@@ -173,7 +177,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public override void OnButtonClick(int buttonID)
         {
-            if (!IsDisposed && LocalSerial != 0 && !SerialHelper.IsValidLocalGumpSerial(LocalSerial))
+            if (!IsDisposed && LocalSerial != 0)
             {
                 List<uint> switches = new List<uint>();
                 List<Tuple<ushort, string>> entries = new List<Tuple<ushort, string>>();
@@ -194,7 +198,7 @@ namespace ClassicUO.Game.UI.Gumps
                     }
                 }
 
-                GameActions.ReplyGump(LocalSerial, ServerSerial, buttonID, switches.ToArray(), entries.ToArray());
+                GameActions.ReplyGump(LocalSerial, MasterGumpSerial != 0 ? MasterGumpSerial : ServerSerial, buttonID, switches.ToArray(), entries.ToArray());
 
                 if (CanMove)
                 {

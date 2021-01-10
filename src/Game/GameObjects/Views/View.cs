@@ -69,7 +69,7 @@ namespace ClassicUO.Game.GameObjects
         public abstract bool Draw(UltimaBatcher2D batcher, int posX, int posY);
 
 
-        [MethodImpl(256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected static void ResetHueVector()
         {
             HueVector.X = 0;
@@ -94,7 +94,7 @@ namespace ClassicUO.Game.GameObjects
             return false;
         }
 
-        [MethodImpl(256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ProcessAlpha(int max)
         {
             if (ProfileManager.CurrentProfile != null && !ProfileManager.CurrentProfile.UseObjectsFading)
@@ -148,6 +148,47 @@ namespace ClassicUO.Game.GameObjects
                 batcher.DrawSprite(texture, x, y, false, ref hue);
             }
         }
+        // ## BEGIN - END ## //
+        protected static void DrawLandWF(UltimaBatcher2D batcher, ushort graphic, int x, int y, ref Vector3 hue, bool isImpassable)
+        {
+            UOTexture texture = ArtLoader.Instance.GetLandTextureWF(graphic, isImpassable);
+
+            if (texture != null)
+            {
+                texture.Ticks = Time.Ticks;
+
+                batcher.DrawSprite(texture, x, y, false, ref hue);
+            }
+        }
+        protected static void DrawLandWF
+        (
+            UltimaBatcher2D batcher,
+            ushort graphic,
+            int x,
+            int y,
+            ref Rectangle rectangle,
+            ref Vector3 n0,
+            ref Vector3 n1,
+            ref Vector3 n2,
+            ref Vector3 n3,
+            ref Vector3 hue,
+            bool isImpassable
+        )
+        {
+            UOTexture texture = TexmapsLoader.Instance.GetTextureWF(TileDataLoader.Instance.LandData[graphic].TexID, isImpassable);
+
+            if (texture != null)
+            {
+                texture.Ticks = Time.Ticks;
+
+                batcher.DrawSpriteLand(texture, x, y, ref rectangle, ref n0, ref n1, ref n2, ref n3, ref hue);
+            }
+            else
+            {
+                DrawStatic(batcher, graphic, x, y, ref hue);
+            }
+        }
+        // ## BEGIN - END ## //
 
         protected static void DrawLand
         (
@@ -220,7 +261,9 @@ namespace ClassicUO.Game.GameObjects
             {
                 texture.Ticks = Time.Ticks;
 
-                batcher.DrawSpriteRotated(texture, x, y, destX, destY, ref hue, angle);
+                ref UOFileIndex index = ref ArtLoader.Instance.GetValidRefEntry(graphic + 0x4000);
+
+                batcher.DrawSpriteRotated(texture, x - index.Width, y - index.Height, destX, destY, ref hue, angle);
             }
         }
 
@@ -231,7 +274,8 @@ namespace ClassicUO.Game.GameObjects
             int x,
             int y,
             ref Vector3 hue,
-            ref bool transparent
+            ref bool transparent,
+            bool shadow
         )
         {
             ref UOFileIndex index = ref ArtLoader.Instance.GetValidRefEntry(graphic + 0x4000);
@@ -295,6 +339,11 @@ namespace ClassicUO.Game.GameObjects
                 x -= index.Width;
                 y -= index.Height;
 
+
+                if (shadow)
+                {
+                    batcher.DrawSpriteShadow(texture, x, y, false);
+                }
 
                 batcher.DrawSprite(texture, x, y, false, ref hue);
             }

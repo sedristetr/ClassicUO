@@ -42,7 +42,9 @@ namespace ClassicUO.Game
     {
         public static int LastSpellIndex { get; set; } = 1;
         public static int LastSkillIndex { get; set; } = 1;
-
+        // ## BEGIN - END ## // 
+        public static int LastSpellIndexCursor { get; set; } = 0;
+        // ## BEGIN - END ## //
 
         public static void ToggleWarMode()
         {
@@ -336,7 +338,12 @@ namespace ClassicUO.Game
         }
 
         public static void Say
-            (string message, ushort hue = 0xFFFF, MessageType type = MessageType.Regular, byte font = 3)
+        (
+            string message, 
+            ushort hue = 0xFFFF,
+            MessageType type = MessageType.Regular, 
+            byte font = 3
+        )
         {
             if (hue == 0xFFFF)
             {
@@ -344,7 +351,9 @@ namespace ClassicUO.Game
             }
 
             // TODO: identify what means 'older client' that uses ASCIISpeechRquest [0x03]
-            if (Client.Version >= ClientVersion.CV_300)
+            // 
+            // Fix -> #1267
+            if (Client.Version >= ClientVersion.CV_200)
             {
                 Socket.Send(new PUnicodeSpeechRequest(message, type, font, hue, "ENU"));
             }
@@ -521,8 +530,7 @@ namespace ClassicUO.Game
             }
         }
 
-        public static void ReplyGump
-            (uint local, uint server, int button, uint[] switches = null, Tuple<ushort, string>[] entries = null)
+        public static void ReplyGump(uint local, uint server, int button, uint[] switches = null, Tuple<ushort, string>[] entries = null)
         {
             Socket.Send(new PGumpResponse(local, server, button, switches, entries));
         }
@@ -557,10 +565,23 @@ namespace ClassicUO.Game
             Socket.Send(new PStatusRequest(serial));
         }
 
+        public static void SendCloseStatus(uint serial)
+        {
+            if (Client.Version >= ClientVersion.CV_200)
+            {
+                Socket.Send(new PCloseStatusBarGump(serial));
+            }
+        }
+
         public static void CastSpellFromBook(int index, uint bookSerial)
         {
             if (index >= 0)
             {
+                // ## BEGIN - END ## //
+                LastSpellIndexCursor = index;
+                GameCursor._spellTime = 0;
+                // ## BEGIN - END ## //
+
                 LastSpellIndex = index;
                 Socket.Send(new PCastSpellFromBook(index, bookSerial));
             }
@@ -570,6 +591,11 @@ namespace ClassicUO.Game
         {
             if (index >= 0)
             {
+                // ## BEGIN - END ## //
+                LastSpellIndexCursor = index;
+                GameCursor._spellTime = 0;
+                // ## BEGIN - END ## //
+
                 LastSpellIndex = index;
                 Socket.Send(new PCastSpell(index));
             }

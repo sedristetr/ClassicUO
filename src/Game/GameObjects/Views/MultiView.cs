@@ -22,6 +22,9 @@
 #endregion
 
 using ClassicUO.Configuration;
+// ## BEGIN - END ## //
+using ClassicUO.Game.InteropServices.Runtime.UOClassicCombat;
+// ## BEGIN - END ## //
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
 using ClassicUO.IO;
@@ -33,7 +36,7 @@ namespace ClassicUO.Game.GameObjects
     internal partial class Multi
     {
         private int _canBeTransparent;
-        public bool IsFromTarget;
+        public bool IsHousePreview;
 
         public override bool TransparentTest(int z)
         {
@@ -114,7 +117,36 @@ namespace ClassicUO.Game.GameObjects
 
             //Engine.DebugInfo.MultiRendered++;
 
-            if (IsFromTarget)
+            // ## BEGIN - END ## //
+            if (ProfileManager.CurrentProfile.HighlightTileAtRange && Distance == ProfileManager.CurrentProfile.HighlightTileAtRangeRange)
+            {
+                HueVector.X = ProfileManager.CurrentProfile.HighlightTileRangeHue;
+                HueVector.Y = 1;
+            }
+            if (ProfileManager.CurrentProfile.HighlightTileAtRangeSpell)
+            {
+                if (GameCursor._spellTime >= 1 && Distance == ProfileManager.CurrentProfile.HighlightTileAtRangeRangeSpell)
+                {
+                    HueVector.X = ProfileManager.CurrentProfile.HighlightTileRangeHueSpell;
+                    HueVector.Y = 1;
+                }
+            }
+            if (ProfileManager.CurrentProfile.PreviewFields)
+            {
+                if (UOClassicCombatCollection.MultiFieldPreview(this))
+                {
+                    HueVector.X = 0x0040;
+                    HueVector.Y = 1;
+                }
+                if (SelectedObject.LastObject == this)
+                {
+                    HueVector.X = 0x0023;
+                    HueVector.Y = 1;
+                }
+            }
+            // ## BEGIN - END ## //
+
+            if (IsHousePreview)
             {
                 HueVector.Z = 0.5f;
             }
@@ -127,14 +159,14 @@ namespace ClassicUO.Game.GameObjects
                 HueVector.Z = 1f - AlphaHue / 255f;
             }
 
-            DrawStaticAnimated(batcher, graphic, posX, posY, ref HueVector, ref DrawTransparent);
+            DrawStaticAnimated(batcher, graphic, posX, posY, ref HueVector, ref DrawTransparent, false);
 
             if (ItemData.IsLight)
             {
                 Client.Game.GetScene<GameScene>().AddLight(this, this, posX + 22, posY + 22);
             }
 
-            if (!(SelectedObject.Object == this || IsFromTarget ||
+            if (!(SelectedObject.Object == this || IsHousePreview ||
                   FoliageIndex != -1 && Client.Game.GetScene<GameScene>().FoliageIndex == FoliageIndex))
             {
                 if (State != 0)

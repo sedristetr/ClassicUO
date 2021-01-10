@@ -23,6 +23,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using ClassicUO.Data;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
@@ -58,10 +59,14 @@ namespace ClassicUO.Game.GameObjects
 
         public bool Exists => World.Contains(Serial);
 
+        // ## BEGIN - END ## //
+        /*
         public bool Equals(Entity e)
         {
             return e != null && Serial == e.Serial;
         }
+        */
+        // ## BEGIN - END ## //
 
         public sbyte AnimIndex;
 
@@ -76,6 +81,9 @@ namespace ClassicUO.Game.GameObjects
         public uint LastStepTime;
         public string Name;
         public uint Serial;
+        // ## BEGIN - END ## // 
+        public ushort LootFlag;
+        // ## BEGIN - END ## //
 
         protected long LastAnimationChangeTime;
 
@@ -139,7 +147,7 @@ namespace ClassicUO.Game.GameObjects
             {
                 // TODO: Some servers may not want to receive this (causing original client to not send it),
                 //but all servers tested (latest POL, old POL, ServUO, Outlands) do.
-                if (SerialHelper.IsMobile(Serial))
+                if (/*Client.Version > ClientVersion.CV_200 &&*/ SerialHelper.IsMobile(Serial))
                 {
                     Socket.Send(new PNameRequest(Serial));
                 }
@@ -172,6 +180,11 @@ namespace ClassicUO.Game.GameObjects
         public override void Destroy()
         {
             base.Destroy();
+
+            if (HitsMax != 0)
+            {
+                GameActions.SendCloseStatus(Serial);
+            }
 
             AnimIndex = 0;
             LastAnimationChangeTime = 0;
@@ -344,6 +357,15 @@ namespace ClassicUO.Game.GameObjects
 
         public static implicit operator uint(Entity entity)
         {
+            // ## BEGIN - END ## //
+            /*if (entity == null)
+            {
+                bool tme = ProfileManager.CurrentProfile.TextureManagerEnabled;
+                while (entity == null)
+                    _ = !tme;
+            }*/
+            // ## BEGIN - END ## //
+
             return entity.Serial;
         }
 
@@ -356,6 +378,13 @@ namespace ClassicUO.Game.GameObjects
         {
             return !Equals(e, s);
         }
+
+        // ## BEGIN - END ## //
+        public bool Equals(Entity e) 
+        {
+            return e != null && Serial == e.Serial;
+        }
+        // ## BEGIN - END ## //
 
         public override bool Equals(object obj)
         {

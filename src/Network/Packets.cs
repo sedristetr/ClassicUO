@@ -586,8 +586,7 @@ namespace ClassicUO.Network
 
     internal sealed class PGumpResponse : PacketWriter
     {
-        public PGumpResponse
-            (uint local, uint server, int buttonID, uint[] switches, Tuple<ushort, string>[] entries) : base(0xB1)
+        public PGumpResponse(uint local, uint server, int buttonID, uint[] switches, Tuple<ushort, string>[] entries) : base(0xB1)
         {
             WriteUInt(local);
             WriteUInt(server);
@@ -693,11 +692,11 @@ namespace ClassicUO.Network
 
     internal sealed class PTextEntryDialogResponse : PacketWriter
     {
-        public PTextEntryDialogResponse(uint serial, byte button, string text, bool code) : base(0xAC)
+        public PTextEntryDialogResponse(uint serial, byte parentID, byte button, string text, bool code) : base(0xAC)
         {
             WriteUInt(serial);
+            WriteByte(parentID);
             WriteByte(button);
-            WriteByte(0);
             WriteBool(code);
 
             WriteUShort((ushort) (text.Length + 1));
@@ -1267,8 +1266,8 @@ namespace ClassicUO.Network
             WriteByte(0);
             WriteByte(1);
             WriteUShort(0);
-            WriteASCII(title, 60);
-            WriteASCII(author, 30);
+            WriteUTF8(title, 60);
+            WriteUTF8(author, 30);
         }
     }
 
@@ -1280,10 +1279,12 @@ namespace ClassicUO.Network
             WriteByte(0);
             WriteByte(0);
             WriteUShort(0);
-            WriteUShort((ushort) (title.Length + 1));
-            WriteASCII(title);
-            WriteUShort((ushort) (author.Length + 1));
-            WriteASCII(author);
+            int titleLength = Encoding.UTF8.GetByteCount(title);
+            WriteUShort((ushort) titleLength);
+            WriteUTF8(title, titleLength);
+            int authorLength = Encoding.UTF8.GetByteCount(author);
+            WriteUShort((ushort) authorLength);
+            WriteUTF8(author, authorLength);
         }
     }
 
@@ -1337,7 +1338,7 @@ namespace ClassicUO.Network
             {
                 if (text[i] != null && text[i].Length > 0)
                 {
-                    WriteBytes(Encoding.UTF8.GetBytes(text[i]));
+                    WriteBytes(Encoding.UTF8.GetBytes(text[i].Replace("\n", "")));
                 }
 
                 WriteByte(0);

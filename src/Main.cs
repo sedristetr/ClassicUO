@@ -21,7 +21,6 @@
 
 #endregion
 
-
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -35,6 +34,7 @@ using ClassicUO.IO;
 using ClassicUO.Resources;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
+using ClassicUO.Utility.Platforms;
 using SDL2;
 
 namespace ClassicUO
@@ -120,7 +120,6 @@ namespace ClassicUO
 
             if (CUOEnviroment.IsHighDPI)
             {
-                Log.Trace("HIGH DPI - ENABLED");
                 Environment.SetEnvironmentVariable("FNA_GRAPHICS_ENABLE_HIGHDPI", "1");
             }
 
@@ -220,13 +219,7 @@ namespace ClassicUO
                     Client.ShowErrorMessage(ResGeneral.YourUOClientVersionIsInvalid);
                 }
 
-                try
-                {
-                    Process.Start(ResGeneral.ClassicUOLink);
-                }
-                catch
-                {
-                }
+                PlatformHelper.LaunchBrowser(ResGeneral.ClassicUOLink);
             }
             else
             {
@@ -365,7 +358,11 @@ namespace ClassicUO
                         break;
 
                     case "debug":
-                        CUOEnviroment.Debug = true;
+						// ## BEGIN - END ## //
+					    //CUOEnviroment.Debug = true;
+						// ## BEGIN - END ## //
+                        CUOEnviroment.Debug = bool.Parse(value); 
+						// ## BEGIN - END ## //
 
                         break;
 
@@ -390,7 +387,13 @@ namespace ClassicUO
                         break;
 
                     case "reconnect_time":
-                        Settings.GlobalSettings.ReconnectTime = int.Parse(value);
+
+                        if (!int.TryParse(value, out int reconnectTime) || reconnectTime < 1000)
+                        {
+                            reconnectTime = 1000;
+                        }
+
+                        Settings.GlobalSettings.ReconnectTime = reconnectTime;
 
                         break;
 
@@ -479,6 +482,12 @@ namespace ClassicUO
                         {
                             Settings.GlobalSettings.ForceDriver = 0;
                         }
+
+                        break;
+
+                    case "packetlog":
+                        
+                        CUOEnviroment.PacketLog = true;
 
                         break;
                 }

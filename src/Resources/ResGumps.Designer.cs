@@ -10,8 +10,8 @@
 
 namespace ClassicUO.Resources {
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -19,9 +19,11 @@ namespace ClassicUO.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    // ## BEGIN - END ## //
+    //[global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    //[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    //[global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    // ## BEGIN - END ## //
     public class ResGumps {
         
         private static global::System.Resources.ResourceManager resourceMan;
@@ -219,15 +221,6 @@ namespace ClassicUO.Resources {
         public static string AlwaysUseFullsizeGameWindow {
             get {
                 return ResourceManager.GetString("AlwaysUseFullsizeGameWindow", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Animal Color.
-        /// </summary>
-        public static string AnimalColor {
-            get {
-                return ResourceManager.GetString("AnimalColor", resourceCulture);
             }
         }
         
@@ -435,6 +428,15 @@ namespace ClassicUO.Resources {
         public static string By {
             get {
                 return ResourceManager.GetString("By", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can Be Attacked Color.
+        /// </summary>
+        public static string CanAttackColor {
+            get {
+                return ResourceManager.GetString("CanAttackColor", resourceCulture);
             }
         }
         
@@ -1232,6 +1234,15 @@ namespace ClassicUO.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enter X Y location:.
+        /// </summary>
+        public static string EnterLocation {
+            get {
+                return ResourceManager.GetString("EnterLocation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Erase.
         /// </summary>
         public static string Erase {
@@ -1462,6 +1473,15 @@ namespace ClassicUO.Resources {
         public static string Gold {
             get {
                 return ResourceManager.GetString("Gold", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to location.
+        /// </summary>
+        public static string GotoLocation {
+            get {
+                return ResourceManager.GetString("GotoLocation", resourceCulture);
             }
         }
         
@@ -1841,6 +1861,15 @@ namespace ClassicUO.Resources {
         public static string Intelligence {
             get {
                 return ResourceManager.GetString("Intelligence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid location entered: Enter &quot;X Y&quot; or &quot;0°0&apos;N,0°0&apos;W&quot;.
+        /// </summary>
+        public static string InvalidLocation {
+            get {
+                return ResourceManager.GetString("InvalidLocation", resourceCulture);
             }
         }
         
@@ -2955,6 +2984,15 @@ namespace ClassicUO.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Show tree and rock shadows.
+        /// </summary>
+        public static string ShadowStatics {
+            get {
+                return ResourceManager.GetString("ShadowStatics", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hold Shift for Context Menus.
         /// </summary>
         public static string ShiftContext {
@@ -3149,6 +3187,24 @@ namespace ClassicUO.Resources {
         public static string ShowReal {
             get {
                 return ResourceManager.GetString("ShowReal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inform when skills change by.
+        /// </summary>
+        public static string ShowSkillsChangedMessageBy {
+            get {
+                return ResourceManager.GetString("ShowSkillsChangedMessageBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inform when stats change.
+        /// </summary>
+        public static string ShowStatsChangedMessage {
+            get {
+                return ResourceManager.GetString("ShowStatsChangedMessage", resourceCulture);
             }
         }
         
@@ -3615,7 +3671,7 @@ namespace ClassicUO.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TopMost.
+        ///   Looks up a localized string similar to Keep map on top.
         /// </summary>
         public static string TopMost {
             get {

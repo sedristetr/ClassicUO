@@ -24,6 +24,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+// ## BEGIN - END ## //
+using ClassicUO.Game.GameObjects;
+// ## BEGIN - END ## //
 using ClassicUO.Game.Managers;
 using ClassicUO.Input;
 using ClassicUO.Renderer;
@@ -67,6 +70,11 @@ namespace ClassicUO.Game.UI.Controls
         public uint ServerSerial { get; set; }
 
         public uint LocalSerial { get; set; }
+
+        // ## BEGIN - END ## //
+        public Entity LocalEntity { get; set; }
+
+        // ## BEGIN - END ## //
 
         public bool IsFromServer { get; set; }
 
@@ -129,33 +137,13 @@ namespace ClassicUO.Game.UI.Controls
             set => _acceptMouseInput = value;
         }
 
-        public int Width
-        {
-            get => _bounds.Width;
-            set
-            {
-                if (_bounds.Width != value)
-                {
-                    _bounds.Width = value;
-                }
-            }
-        }
-
-        public int Height
-        {
-            get => _bounds.Height;
-            set
-            {
-                if (_bounds.Height != value)
-                {
-                    _bounds.Height = value;
-                }
-            }
-        }
-
         public ref int X => ref _bounds.X;
 
         public ref int Y => ref _bounds.Y;
+
+        public ref int Width => ref _bounds.Width;
+
+        public ref int Height => ref _bounds.Height;
 
         public int ParentX => Parent != null ? Parent.X + Parent.ParentX : 0;
 
@@ -375,7 +363,7 @@ namespace ClassicUO.Game.UI.Controls
 
         private void DrawDebug(UltimaBatcher2D batcher, int x, int y)
         {
-            if (IsVisible && CUOEnviroment.Debug)
+            if (/*IsVisible && */CUOEnviroment.Debug) // ## BEGIN - END ## //
             {
                 ResetHueVector();
                 batcher.DrawRectangle(SolidColorTextureCache.GetTexture(Color.Green), x, y, Width, Height, ref HueVector);

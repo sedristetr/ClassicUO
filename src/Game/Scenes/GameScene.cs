@@ -26,6 +26,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using ClassicUO.Configuration;
+// ## BEGIN - END ## //
+using ClassicUO.Game.InteropServices.Runtime.UOClassicCombat;
+using ClassicUO.Game.InteropServices.Runtime.External;
+// ## BEGIN - END ## //
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
@@ -76,11 +80,12 @@ namespace ClassicUO.Game.Scenes
         private static XBREffect _xbr;
         private bool _alphaChanged;
         private long _alphaTimer;
-        private bool _deathScreenActive;
-        private Label _deathScreenLabel;
         private bool _forceStopScene;
         private HealthLinesManager _healthLinesManager;
-
+        // ## BEGIN - END ## // 
+        private UOClassicCombatLines _UOClassicCombatLines;
+        private TextureManager _textureManager;
+        // ## BEGIN - END ## //
         private bool _isListReady;
         private Point _lastSelectedMultiPositionInHouseCustomization;
         private int _lightCount;
@@ -152,6 +157,10 @@ namespace ClassicUO.Game.Scenes
             InfoBars = new InfoBarManager();
             InfoBars.Load();
             _healthLinesManager = new HealthLinesManager();
+            // ## BEGIN - END ## // 
+            _UOClassicCombatLines = new UOClassicCombatLines();
+            _textureManager = new TextureManager();
+            // ## BEGIN - END ## //
             Weather = new Weather();
 
             WorldViewportGump viewport = new WorldViewportGump(this);
@@ -192,10 +201,55 @@ namespace ClassicUO.Game.Scenes
                 Client.Game.SetWindowSize(w, h);
             }
 
+            // ## BEGIN - END ## //
+            if (ProfileManager.CurrentProfile.UOClassicCombatSelf)
+            {
+                UIManager.Add(new UOClassicCombatSelf
+                {
+                    X = ProfileManager.CurrentProfile.UOClassicCombatSelfLocation.X,
+                    Y = ProfileManager.CurrentProfile.UOClassicCombatSelfLocation.Y
+                });
+
+            }
+            if (ProfileManager.CurrentProfile.UOClassicCombatBuffbar)
+            {
+                UIManager.Add(new UOClassicCombatBuffbar
+                {
+                    X = ProfileManager.CurrentProfile.UOClassicCombatBuffbarLocation.X,
+                    Y = ProfileManager.CurrentProfile.UOClassicCombatBuffbarLocation.Y
+                });
+
+            }
+            if (ProfileManager.CurrentProfile.UOClassicCombatLines)
+            {
+                UIManager.Add(new UOClassicCombatLines
+                {
+                    X = ProfileManager.CurrentProfile.UOClassicCombatLinesLocation.X,
+                    Y = ProfileManager.CurrentProfile.UOClassicCombatLinesLocation.Y
+                });
+
+            }
+            if (ProfileManager.CurrentProfile.UOClassicCombatAL)
+            {
+                UIManager.Add(new UOClassicCombatAL
+                {
+                    X = ProfileManager.CurrentProfile.UOClassicCombatALLocation.X,
+                    Y = ProfileManager.CurrentProfile.UOClassicCombatALLocation.Y
+                });
+
+            }
+            if (ProfileManager.CurrentProfile.BandageGump)
+            {
+                UIManager.Add(new BandageGump());
+            }
+            // ## BEGIN - END ## //
 
             CircleOfTransparency.Create(ProfileManager.CurrentProfile.CircleOfTransparencyRadius);
             Plugin.OnConnected();
 
+            // ## BEGIN - END ## //
+            ModulesManager.Load();
+            // ## BEGIN - END ## //
 
             Camera.SetZoomValues
             (
@@ -302,6 +356,15 @@ namespace ClassicUO.Game.Scenes
                     break;
             }
 
+            // ## BEGIN - END ## //
+            if (ProfileManager.CurrentProfile.UOClassicCombatSelf || ProfileManager.CurrentProfile.UOClassicCombatBuffbar)
+            {
+                World.UOClassicCombatCliloc.OnMessage(text, hue, name, e.IsUnicode);
+            }
+
+            World.Player?.BandageTimer.OnMessage(text, hue, name, e.IsUnicode);
+            // ## BEGIN - END ## //
+
             if (!string.IsNullOrEmpty(text))
             {
                 World.Journal.Add(text, hue, name, e.TextType, e.IsUnicode);
@@ -310,6 +373,8 @@ namespace ClassicUO.Game.Scenes
 
         public override void Unload()
         {
+            Client.Game.SetWindowTitle(string.Empty);
+
             ItemHold.Clear();
 
             try
@@ -319,14 +384,21 @@ namespace ClassicUO.Game.Scenes
             catch
             {
             }
-
+            // ## BEGIN - END ## // 
+            try
+            {
+                ModulesManager.Unload();
+            }
+            catch
+            {
+            }
+            // ## BEGIN - END ## //
             TargetManager.Reset();
 
             // special case for wmap. this allow us to save settings
             UIManager.GetGump<WorldMapGump>()?.SaveSettings();
 
-            ProfileManager.CurrentProfile?.Save
-                (ProfileManager.ProfilePath, UIManager.Gumps.OfType<Gump>().Where(s => s.CanBeSaved).Reverse().ToList());
+            ProfileManager.CurrentProfile?.Save(ProfileManager.ProfilePath);
 
             Macros.Save();
             InfoBars.Save();
@@ -775,7 +847,7 @@ namespace ClassicUO.Game.Scenes
 
                     foreach (Multi s in house.Components)
                     {
-                        s.IsFromTarget = true;
+                        s.IsHousePreview = true;
                         s.X = (ushort) (_multi.X + s.MultiOffsetX);
                         s.Y = (ushort) (_multi.Y + s.MultiOffsetY);
                         s.Z = (sbyte) (_multi.Z + s.MultiOffsetZ);
@@ -832,15 +904,18 @@ namespace ClassicUO.Game.Scenes
                 return false;
             }
 
-            CheckDeathScreen();
-
 
             int posX = ProfileManager.CurrentProfile.GameWindowPosition.X + 5;
             int posY = ProfileManager.CurrentProfile.GameWindowPosition.Y + 5;
             int width = ProfileManager.CurrentProfile.GameWindowSize.X;
             int height = ProfileManager.CurrentProfile.GameWindowSize.Y;
 
+            if (CheckDeathScreen(batcher, posX, posY, width, height))
+            {
+                return true;
+            }
 
+            
             Viewport r_viewport = batcher.GraphicsDevice.Viewport;
             Viewport camera_viewport = Camera.GetViewport();
 
@@ -993,34 +1068,30 @@ namespace ClassicUO.Game.Scenes
                 CircleOfTransparency.Draw(batcher, fx, fy);
             }
 
-            if (!_deathScreenActive)
+            RenderedObjectsCount = 0;
+
+            int z = World.Player.Z + 5;
+
+            for (int i = 0; i < _renderListCount; ++i)
             {
-                RenderedObjectsCount = 0;
+                GameObject obj = _renderList[i];
 
-                int z = World.Player.Z + 5;
-
-                for (int i = 0; i < _renderListCount; ++i)
+                if (obj.Z <= _maxGroundZ)
                 {
-                    GameObject obj = _renderList[i];
+                    GameObject.DrawTransparent = usecircle && obj.TransparentTest(z);
 
-                    if (obj.Z <= _maxGroundZ)
+                    if (obj.Draw(batcher, obj.RealScreenPosition.X, obj.RealScreenPosition.Y))
                     {
-                        GameObject.DrawTransparent = usecircle && obj.TransparentTest(z);
-
-                        if (obj.Draw(batcher, obj.RealScreenPosition.X, obj.RealScreenPosition.Y))
-                        {
-                            ++RenderedObjectsCount;
-                        }
+                        ++RenderedObjectsCount;
                     }
-                }
-
-                if (_multi != null && TargetManager.IsTargeting &&
-                    TargetManager.TargetingState == CursorTarget.MultiPlacement)
-                {
-                    _multi.Draw(batcher, _multi.RealScreenPosition.X, _multi.RealScreenPosition.Y);
                 }
             }
 
+            if (_multi != null && TargetManager.IsTargeting &&
+                TargetManager.TargetingState == CursorTarget.MultiPlacement)
+            {
+                _multi.Draw(batcher, _multi.RealScreenPosition.X, _multi.RealScreenPosition.Y);
+            }
 
             // draw weather
             Weather.Draw(batcher, 0, 0);
@@ -1035,7 +1106,7 @@ namespace ClassicUO.Game.Scenes
 
         private bool PrepareLightsRendering(UltimaBatcher2D batcher, ref Matrix matrix)
         {
-            if (_deathScreenActive || !UseLights && !UseAltLights ||
+            if (!UseLights && !UseAltLights ||
                 World.Player.IsDead && ProfileManager.CurrentProfile.EnableBlackWhiteEffect || _lightRenderTarget == null)
             {
                 return false;
@@ -1094,6 +1165,11 @@ namespace ClassicUO.Game.Scenes
 
         public void DrawOverheads(UltimaBatcher2D batcher, int x, int y)
         {
+            // ## BEGIN - END ## //
+            _UOClassicCombatLines.Draw(batcher);
+            _textureManager.Draw(batcher);
+            // ## BEGIN - END ## //
+
             _healthLinesManager.Draw(batcher);
 
             int renderIndex = _renderIndex - 1;
@@ -1138,33 +1214,31 @@ namespace ClassicUO.Game.Scenes
             }
         }
 
-        private void CheckDeathScreen()
+        private static readonly RenderedText _youAreDeadText = RenderedText.Create(ResGeneral.YouAreDead, 0xFFFF, 3, false, FontStyle.BlackBorder, TEXT_ALIGN_TYPE.TS_LEFT);
+       
+        private bool CheckDeathScreen(UltimaBatcher2D batcher, int x, int y, int width, int height)
         {
             if (ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.EnableDeathScreen)
             {
-                if (_deathScreenLabel == null || _deathScreenLabel.IsDisposed)
+                if (World.InGame)
                 {
                     if (World.Player.IsDead && World.Player.DeathScreenTimer > Time.Ticks)
                     {
-                        UIManager.Add
+                        batcher.Begin();
+                        _youAreDeadText.Draw
                         (
-                            _deathScreenLabel = new Label(ResGeneral.YouAreDead, false, 999, 200, 3)
-                            {
-                                X = (Client.Game.Window.ClientBounds.Width >> 1) - 50,
-                                Y = (Client.Game.Window.ClientBounds.Height >> 1) - 50
-                            }
+                            batcher,
+                            x + (width / 2 - _youAreDeadText.Width / 2),
+                            y + height / 2
                         );
+                        batcher.End();
 
-                        _deathScreenActive = true;
+                        return true;
                     }
                 }
-                else if (World.Player.DeathScreenTimer < Time.Ticks)
-                {
-                    _deathScreenActive = false;
-                    _deathScreenLabel?.Dispose();
-                    _deathScreenLabel = null;
-                }
             }
+
+            return false;
         }
 
         private void StopFollowing()

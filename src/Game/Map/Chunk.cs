@@ -23,6 +23,9 @@
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+// ## BEGIN - END ## //
+using ClassicUO.Game.InteropServices.Runtime.UOClassicCombat;
+// ## BEGIN - END ## //
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.IO.Resources;
@@ -61,7 +64,7 @@ namespace ClassicUO.Game.Map
         }
 
 
-        [MethodImpl(256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe void Load(int index)
         {
             IsDestroyed = false;
@@ -110,9 +113,7 @@ namespace ClassicUO.Game.Map
 
                     if (sb != null)
                     {
-                        int count = (int) im.StaticCount;
-
-                        for (int i = 0; i < count; ++i, ++sb)
+                        for (int i = 0, count = (int) im.StaticCount; i < count; ++i, ++sb)
                         {
                             if (sb->Color != 0 && sb->Color != 0xFFFF)
                             {
@@ -127,6 +128,10 @@ namespace ClassicUO.Game.Map
                                 staticObject.X = (ushort) (bx + sb->X);
                                 staticObject.Y = (ushort) (by + sb->Y);
                                 staticObject.Z = sb->Z;
+                                // ## BEGIN - END ## // 
+                                if (UOClassicCombatCollection.InfernoBridgeSolver(staticObject.X, staticObject.Y))
+                                    staticObject.Hue = 0x44;
+                                // ## BEGIN - END ## //
                                 staticObject.UpdateScreenPosition();
 
                                 AddGameObject(staticObject, sb->X, sb->Y);

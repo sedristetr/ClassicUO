@@ -261,7 +261,7 @@ namespace ClassicUO.IO.Resources
             return HuesHelper.Color16To32(c);
         }
 
-        [MethodImpl(256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ushort GetRadarColorData(int c)
         {
             if (c >= 0 && c < RadarCol.Length)
@@ -310,7 +310,7 @@ namespace ClassicUO.IO.Resources
     {
         public readonly uint Header;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 8)]
-        public readonly HuesBlock[] Entries;
+        public readonly VerdataHuesBlock[] Entries;
     }
 
     internal struct FloatHues

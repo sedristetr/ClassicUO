@@ -27,10 +27,12 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using ClassicUO.Game;
+using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
+using ClassicUO.Game.InteropServices.Runtime.External; // ## BEGIN - END ## // 
 using Microsoft.Xna.Framework;
 using TinyJson;
 
@@ -72,7 +74,7 @@ namespace ClassicUO.Configuration
         public ushort PartyAuraHue { get; set; } = 0x0044;
         public ushort FriendHue { get; set; } = 0x0044;
         public ushort CriminalHue { get; set; } = 0x03B2;
-        public ushort AnimalHue { get; set; } = 0x03B2;
+        public ushort CanAttackHue { get; set; } = 0x03B2;
         public ushort EnemyHue { get; set; } = 0x0031;
         public ushort MurdererHue { get; set; } = 0x0023;
         public ushort BeneficHue { get; set; } = 0x0059;
@@ -212,9 +214,14 @@ namespace ClassicUO.Configuration
         public int CounterBarRows { get; set; } = 1;
         public int CounterBarColumns { get; set; } = 1;
 
+        public bool ShowSkillsChangedMessage { get; set; } = true;
+        public int ShowSkillsChangedDeltaValue { get; set; } = 1;
+        public bool ShowStatsChangedMessage { get; set; } = true;
+
 
         public int FilterType { get; set; } = 0;
         public bool ShadowsEnabled { get; set; } = true;
+        public bool ShadowsStatics { get; set; } = true;
         public int AuraUnderFeetType { get; set; } // 0 = NO, 1 = in warmode, 2 = ctrl+shift, 3 = always
         public bool AuraOnMouse { get; set; } = true;
 
@@ -231,7 +238,7 @@ namespace ClassicUO.Configuration
 
         public uint GrabBagSerial { get; set; }
 
-        public int GridLootType { get; set; } // 0 = none, 1 = only grid, 2 = both
+        public int GridLootType { get; set; } = 2; // 0 = none, 1 = only grid, 2 = both // ## BEGIN - END ## //
 
         public bool ReduceFPSWhenInactive { get; set; } = true;
 
@@ -262,6 +269,166 @@ namespace ClassicUO.Configuration
 
         public bool IgnoreStaminaCheck { get; set; } = false;
 
+        // ## BEGIN - END ## //
+        public Point PullEnemyBars { get; set; } = new Point(1630, 214);
+        public Point PullEnemyBarsFinalLocation { get; set; } = new Point(1790, 0); // X difference needs to be 120 to get bars next to one another
+        public Point PullFriendlyBars { get; set; } = new Point(1550, 214);
+        public Point PullFriendlyBarsFinalLocation { get; set; } = new Point(1670, 0); // X difference needs to be 120 to get bars next to one another
+        public Point PullPartyAllyBars { get; set; } = new Point(1470, 214);
+        public Point PullPartyAllyBarsFinalLocation { get; set; } = new Point(1550, 0); // X difference needs to be 120 to get bars next to one another
+        public Point BandageGumpOffset { get; set; } = new Point(0, 0);
+        public bool BandageGump { get; set; }
+        public bool ShowJournal2Client { get; set; } = true;
+        public bool ShowJournal2Objects { get; set; } = true;
+        public bool ShowJournal2System { get; set; } = true;
+        public bool ShowJournal2GuildAlly { get; set; } = true;
+        public uint CustomSerial { get; set; } // ## CustomSerial Equip Item ## //
+        public uint Mimic_PlayerSerial { get; set; }
+        public bool AutoWorldmapMarker { get; set; }
+        public bool ColorStealth { get; set; }
+        public ushort StealthHue { get; set; } = 0x0044;
+        public int StealthNeonType { get; set; } = 0; // 0 = off, 1 = white, 2 = pink, 3 = ice, 4 = fire
+        public int GoldType { get; set; } = 0; // 0 = normal, 1 = skillball, 2 = prevcoin
+        public bool ColorGold { get; set; }
+        public ushort GoldHue { get; set; } = 0x0044;
+        public bool ColorEnergyBolt { get; set; }
+        public ushort EnergyBoltHue { get; set; } = 0x0044;
+        public int EnergyBoltNeonType { get; set; } = 0; // 0 = off, 1 = white, 2 = pink, 3 = ice, 4 = fire
+        public int EnergyBoltArtType { get; set; } = 0; // 0 = normal, 1 = explo ball, 2 = small bag ball
+        public int BlockerType { get; set; } = 0; // 0 = off, 1 = stump, 2 = tile
+        public bool ColorBlockerTile { get; set; }
+        public ushort BlockerTileHue { get; set; } = 0x0044;
+        public int TreeType { get; set; } = 0; // 0 = off, 1 = stump, 2 = tile
+        public bool ColorTreeTile { get; set; }
+        public ushort TreeTileHue { get; set; } = 0x0044;
+        public bool HighlightTileAtRange { get; set; }
+        public int HighlightTileAtRangeRange { get; set; }
+        public ushort HighlightTileRangeHue { get; set; } = 0x0044;
+        public bool HighlightTileAtRangeSpell { get; set; }
+        public int HighlightTileAtRangeRangeSpell { get; set; }
+        public ushort HighlightTileRangeHueSpell { get; set; } = 0x0044;
+        public int GlowingWeaponsType { get; set; } = 0; // 0 = off, 1 = white, 2 = pink, 3 = ice, 4 = fire, 5 = custom
+        public ushort HighlightGlowingWeaponsTypeHue { get; set; } = 0x0044;
+        public bool OverheadRange { get; set; }
+        public bool OwnAuraByHP { get; set; }
+        public bool InfernoBridge { get; set; } = true;
+        public Point SpellOnCursorOffset { get; set; } = new Point(25, 30);
+        public bool SpellOnCursor { get; set; }
+        public bool PreviewFields { get; set; }
+        public bool OverheadSummonTime { get; set; }
+        public bool OverheadPeaceTime { get; set; }
+        public int LastTargetRange { get; set; }
+        public bool HighlightHealthBarByState { get; set; } //## Highlights mobiles healthbars if they're poisoned or para
+        public bool HighlightLastTargetHealthBarOutline { get; set; } //## Highlights last target healthbar if they're poisoned or invul
+        public int HighlightLastTargetType { get; set; } = 0; // 0 = off, 1 = white, 2 = pink, 3 = ice, 4 = fire, 5 = custom
+        public ushort HighlightLastTargetTypeHue { get; set; } = 0x0044;
+        public int HighlightLastTargetTypePoison { get; set; } = 0; // 0 = off, 1 = white, 2 = pink, 3 = ice, 4 = fire, 5 = special, 6 = custom
+        public ushort HighlightLastTargetTypePoisonHue { get; set; } = 0x0044;
+        public int HighlightLastTargetTypePara { get; set; } = 0; // 0 = off, 1 = white, 2 = pink, 3 = ice, 4 = fire, 5 = special, 6 = custom
+        public ushort HighlightLastTargetTypeParaHue { get; set; } = 0x0044;
+        public bool MobileHamstrungTime { get; set; }
+        public uint MobileHamstrungTimeCooldown { get; set; } = 3000;
+        public bool MultipleUnderlinesSelfParty { get; set; }
+        public bool MultipleUnderlinesSelfPartyBigBars { get; set; }
+        public int MultipleUnderlinesSelfPartyTransparency { get; set; } = 10;
+        public bool UseOldHealthBars { get; set; } = false;
+        public bool BlackOutlineStatics { get; set; } = false;
+        public bool FlashingHealthbarOutlineSelf { get; set; } = false;
+        public bool FlashingHealthbarOutlineParty { get; set; } = false;
+        public bool FlashingHealthbarOutlineGreen { get; set; } = false;
+        public bool FlashingHealthbarOutlineOrange { get; set; } = false;
+        public bool FlashingHealthbarOutlineAll { get; set; } = false;
+        public bool FlashingHealthbarNegativeOnly { get; set; } = false;
+        public int FlashingHealthbarTreshold { get; set; } = 10;
+        //UCC SELF
+        public bool UOClassicCombatSelf { get; set; } = false;
+        public Point UOClassicCombatSelfLocation { get; set; } = new Point(25, 25);
+        public bool UOClassicCombatSelf_AutoBandage { get; set; } = true;
+        public bool UOClassicCombatSelf_AutoPouche { get; set; } = true;
+        public bool UOClassicCombatSelf_AutoCurepot { get; set; } = true;
+        public bool UOClassicCombatSelf_AutoHealpot { get; set; } = true;
+        public bool UOClassicCombatSelf_AutoRefreshpot { get; set; } = true;
+        public uint UOClassicCombatSelf_ActionCooldown { get; set; } = 600;
+        public uint UOClassicCombatSelf_PoucheCooldown { get; set; } = 0;
+        public uint UOClassicCombatSelf_CurepotCooldown { get; set; } = 0;
+        public uint UOClassicCombatSelf_HealpotCooldown { get; set; } = 10000;
+        public uint UOClassicCombatSelf_RefreshpotCooldown { get; set; } = 0;
+        public uint UOClassicCombatSelf_WaitForTarget { get; set; } = 1000;
+        public bool UOClassicCombatSelf_RearmAfterPot { get; set; } = true;
+        public bool UOClassicCombatSelf_IsDuelingOrTankMage { get; set; } = true;
+        public bool UOClassicCombatSelf_AutoRearmAfterDisarmed { get; set; } = true;
+        public uint UOClassicCombatSelf_AutoRearmAfterDisarmedCooldown { get; set; } = 5000;
+        public uint UOClassicCombatSelf_BandiesHPTreshold { get; set; } = 1;
+        public bool UOClassicCombatSelf_BandiesPoison { get; set; } = true;
+        public uint UOClassicCombatSelf_CurepotHPTreshold { get; set; } = 10;
+        public uint UOClassicCombatSelf_HealpotHPTreshold { get; set; } = 20;
+        public uint UOClassicCombatSelf_RefreshpotStamTreshold { get; set; } = 15;
+        public bool UOClassicCombatSelf_NoRefreshPotAfterHamstrung { get; set; } = true;
+        public uint UOClassicCombatSelf_NoRefreshPotAfterHamstrungCooldown { get; set; } = 5000;
+        public bool UOClassicCombatSelf_DisarmStrike { get; set; } = true;
+        public uint UOClassicCombatSelf_DisarmStrikeCooldown { get; set; } = 30000;
+        public uint UOClassicCombatSelf_DisarmAttemptCooldown { get; set; } = 15000;
+        public uint UOClassicCombatSelf_HamstringStrikeCooldown { get; set; } = 30000;
+        public uint UOClassicCombatSelf_HamstringAttemptCooldown { get; set; } = 15000;
+        public uint UOClassicCombatSelf_DisarmedCooldown { get; set; } = 5000;
+        public uint UOClassicCombatSelf_HamstrungCooldown { get; set; } = 5000;
+        public bool UOClassicCombatSelf_ConsiderHidden { get; set; } = true;
+        public bool UOClassicCombatSelf_ConsiderSpells { get; set; } = true;
+        public uint UOClassicCombatSelf_StrengthPotCooldown { get; set; } = 120000;
+        public uint UOClassicCombatSelf_DexPotCooldown { get; set; } = 120000;
+        public int UOClassicCombatSelf_MinRNG { get; set; } = 50;
+        public int UOClassicCombatSelf_MaxRNG { get; set; } = 150;
+        public bool UOClassicCombatSelf_ClilocTriggers { get; set; } = false;
+        public bool UOClassicCombatSelf_MacroTriggers { get; set; } = false;
+        // BUFFBAR
+        public bool UOClassicCombatBuffbar { get; set; } = false;
+        public Point UOClassicCombatBuffbarLocation { get; set; } = new Point(25, 25);
+        public bool UOClassicCombatBuffbar_SwingEnabled { get; set; } = false;
+        public bool UOClassicCombatBuffbar_DoDEnabled { get; set; } = false;
+        public bool UOClassicCombatBuffbar_GotDEnabled { get; set; } = false;
+        public bool UOClassicCombatBuffbar_DoHEnabled { get; set; } = false;
+        public bool UOClassicCombatBuffbar_GotHEnabled { get; set; } = false;
+        public bool UOClassicCombatBuffbar_Locked { get; set; } = true;
+        // LINES
+        public bool UOClassicCombatLines { get; set; } = false;
+        public Point UOClassicCombatLinesLocation { get; set; } = new Point(25, 25);
+        public bool UOClassicCombatLines_ToggleLastTarget { get; set; } = false;
+        public bool UOClassicCombatLines_ToggleHuntingMmode { get; set; } = false;
+        public bool UOClassicCombatLines_ToggleHMBlue { get; set; } = false;
+        public bool UOClassicCombatLines_ToggleHMRed { get; set; } = false;
+        public bool UOClassicCombatLines_ToggleHMOrange { get; set; } = false;
+        public bool UOClassicCombatLines_ToggleHMCriminal { get; set; } = false;
+        // ALooterOP
+        public bool UOClassicCombatAL { get; set; } = false;
+        public Point UOClassicCombatALLocation { get; set; } = new Point(25, 25);
+        public bool UOClassicCombatAL_EnableAL { get; set; } = false;
+        public bool UOClassicCombatAL_EnableSL { get; set; } = false;
+        public bool UOClassicCombatAL_EnableALLow { get; set; } = false;
+        public bool UOClassicCombatAL_EnableSLLow { get; set; } = false;
+        public uint UOClassicCombatAL_LootDelay { get; set; } = 500;
+        public uint UOClassicCombatAL_PurgeDelay { get; set; } = 10000;
+        public uint UOClassicCombatAL_QueueSpeed { get; set; } = 100;
+        public bool UOClassicCombatAL_EnableGridLootColoring { get; set; } = false;
+        public bool UOClassicCombatAL_EnableLootAboveID { get; set; } = false;
+        public uint UOClassicCombatAL_LootAboveID { get; set; } = 22400;
+        public uint UOClassicCombatAL_SL_Gray { get; set; } = 946;
+        public uint UOClassicCombatAL_SL_Blue { get; set; } = 86;
+        public uint UOClassicCombatAL_SL_Green { get; set; } = 63;
+        public uint UOClassicCombatAL_SL_Red { get; set; } = 34;
+        // SPECIAL
+        public bool SpecialSetLastTargetCliloc { get; set; } = false;
+        public string SpecialSetLastTargetClilocText { get; set; } = "- Target -";
+        // ## Texture MGR ## //
+        public bool TextureManagerEnabled { get; set; } = false;
+
+        // ## BEGIN - END ## //        
+        public bool WireFrameView { get; set; } = false; //##WIREFRAME##//
+        public bool HueImpassableView { get; set; } = false;
+        public ushort HueImpassableViewHue { get; set; } = 0x0044;
+        public bool TextureManagerHalos { get; set; } // Halos
+        public bool TextureManagerArrows { get; set; } // Arrows
+        // ## BEGIN - END ## //
+
         public bool ShowJournalClient { get; set; } = true;
         public bool ShowJournalObjects { get; set; } = true;
         public bool ShowJournalSystem { get; set; } = true;
@@ -289,7 +456,7 @@ namespace ClassicUO.Configuration
 
         public static uint GumpsVersion { get; private set; }
 
-        public void Save(string path, List<Gump> gumps = null)
+        public void Save(string path)
         {
             Log.Trace($"Saving path:\t\t{path}");
 
@@ -297,12 +464,12 @@ namespace ClassicUO.Configuration
             ConfigurationResolver.Save(this, Path.Combine(path, "profile.json"));
 
             // Save opened gumps
-            SaveGumps(path, gumps);
+            SaveGumps(path);
 
             Log.Trace("Saving done!");
         }
 
-        private void SaveGumps(string path, List<Gump> gumps)
+        private void SaveGumps(string path)
         {
             string gumpsXmlPath = Path.Combine(path, "gumps.xml");
 
@@ -318,25 +485,57 @@ namespace ClassicUO.Configuration
 
                 UIManager.AnchorManager.Save(xml);
 
-                for (int i = 0; i < gumps.Count; i++)
+                LinkedList<Gump> gumps = new LinkedList<Gump>();
+
+                foreach (Gump gump in UIManager.Gumps)
                 {
-                    Gump gump = gumps[i];
+                    if (!gump.IsDisposed && gump.CanBeSaved && !(gump is AnchorableGump anchored && UIManager.AnchorManager[anchored] != null))
+                    {
+                        gumps.AddLast(gump);
+                    }
+                }
 
-                    if (gump.IsDisposed)
+
+                LinkedListNode<Gump> first = gumps.First;
+
+                while (first != null)
+                {
+                    Gump gump = first.Value;
+
+                    if (gump.LocalSerial != 0)
                     {
-                        continue;
+                        Item item = World.Items.Get(gump.LocalSerial);
+
+                        if (item != null && !item.IsDestroyed && item.Opened)
+                        {
+                            while (SerialHelper.IsItem(item.Container))
+                            {
+                                item = World.Items.Get(item.Container);
+                            }
+
+                            SaveItemsGumpRecursive(item, xml, gumps);
+
+                            if (first.List != null)
+                            {
+                                gumps.Remove(first);
+                            }
+
+                            first = gumps.First;
+
+                            continue;
+                        }
                     }
 
-                    if (gump is AnchorableGump anchored && UIManager.AnchorManager[anchored] != null)
+                    xml.WriteStartElement("gump");
+                    gump.Save(xml);
+                    xml.WriteEndElement();
+
+                    if (first.List != null)
                     {
-                        // do nothing
+                        gumps.Remove(first);
                     }
-                    else
-                    {
-                        xml.WriteStartElement("gump");
-                        gump.Save(xml);
-                        xml.WriteEndElement();
-                    }
+
+                    first = gumps.First;
                 }
 
                 xml.WriteEndElement();
@@ -346,6 +545,52 @@ namespace ClassicUO.Configuration
 
             SkillsGroupManager.Save();
         }
+
+        private static void SaveItemsGumpRecursive(Item parent, XmlTextWriter xml, LinkedList<Gump> list)
+        {
+            if (parent != null && !parent.IsDestroyed && parent.Opened)
+            {
+                SaveItemsGump(parent, xml, list);
+
+                Item first = (Item) parent.Items;
+
+                while (first != null)
+                {
+                    Item next = (Item) first.Next;
+
+                    SaveItemsGumpRecursive(first, xml, list);
+
+                    first = next;
+                }
+            }
+        }
+
+        private static void SaveItemsGump(Item item, XmlTextWriter xml, LinkedList<Gump> list)
+        {
+            if (item != null && !item.IsDestroyed && item.Opened)
+            {
+                LinkedListNode<Gump> first = list.First;
+
+                while (first != null)
+                {
+                    LinkedListNode<Gump> next = first.Next;
+
+                    if (first.Value.LocalSerial == item.Serial && !first.Value.IsDisposed)
+                    {
+                        xml.WriteStartElement("gump");
+                        first.Value.Save(xml);
+                        xml.WriteEndElement();
+
+                        list.Remove(first);
+
+                        break;
+                    }
+
+                    first = next;
+                }
+            }
+        }
+
 
         public List<Gump> ReadGumps(string path)
         {
@@ -453,7 +698,7 @@ namespace ClassicUO.Configuration
                     }
                 }
 
-                SaveGumps(path, gumps);
+                SaveGumps(path);
 
                 gumps.Clear();
 
@@ -548,6 +793,12 @@ namespace ClassicUO.Configuration
                                     gump = new JournalGump();
 
                                     break;
+                                // ## BEGIN - END ## // 
+                                case GumpType.Journal2:
+                                    gump = new JournalGump2();
+
+                                    break;
+                                // ## BEGIN - END ## // 
 
                                 case GumpType.MacroButton:
                                     gump = new MacroButtonGump();

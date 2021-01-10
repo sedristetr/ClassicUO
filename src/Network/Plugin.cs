@@ -341,11 +341,7 @@ namespace ClassicUO.Network
 
         private static void SetWindowTitle(string str)
         {
-#if DEV_BUILD
-            Client.Game.Window.Title = $"{str} - ClassicUO [dev] - {CUOEnviroment.Version}";
-#else
-            Client.Game.Window.Title = $"{str} - ClassicUO - {CUOEnviroment.Version}";
-#endif
+            Client.Game.SetWindowTitle(str);
         }
 
         private static bool GetStaticData
@@ -434,10 +430,20 @@ namespace ClassicUO.Network
 
         internal static void Tick()
         {
-            foreach (Plugin t in Plugins)
+            // ## BEGIN - END ## //  ORIG
+            //foreach (Plugin t in Plugins)
+            //    t._tick?.Invoke();
+            // ## BEGIN - END ## // 
+            try
             {
-                t._tick?.Invoke();
+                foreach (Plugin t in Plugins)
+                    t._tick?.Invoke();
             }
+            catch
+            {
+
+            }
+            // ## BEGIN - END ## //
         }
 
 
@@ -530,16 +536,14 @@ namespace ClassicUO.Network
 
         internal static bool ProcessHotkeys(int key, int mod, bool ispressed)
         {
-            bool result = true;
-
-
             if (!World.InGame ||
                 ProfileManager.CurrentProfile != null && ProfileManager.CurrentProfile.ActivateChatAfterEnter &&
-                UIManager.SystemChat?.IsActive == true ||
-                UIManager.KeyboardFocusControl != UIManager.SystemChat.TextBoxControl)
+                UIManager.SystemChat != null && (UIManager.SystemChat.IsActive || UIManager.KeyboardFocusControl != UIManager.SystemChat.TextBoxControl))
             {
-                return result;
+                return true;
             }
+
+            bool result = true;
 
             foreach (Plugin plugin in Plugins)
             {

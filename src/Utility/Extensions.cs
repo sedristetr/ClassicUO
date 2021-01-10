@@ -73,20 +73,32 @@ namespace ClassicUO.Utility
                         e =>
                         {
                             Log.Panic(e.ToString());
-                            //try
-                            //{
-                            //    using (StreamWriter txt = new StreamWriter("crash.log", true))
-                            //    {
-                            //        txt.AutoFlush = true;
-                            //        txt.WriteLine("Exception @ {0}", Engine.CurrDateTime.ToString("MM-dd-yy HH:mm:ss.ffff"));
-                            //        txt.WriteLine(e.ToString());
-                            //        txt.WriteLine("");
-                            //        txt.WriteLine("");
-                            //    }
-                            //}
-                            //catch
-                            //{
-                            //}
+                            // ## BEGIN - END ## // ORIG COMMENTED OUT
+                            try
+                            {
+                                using (StreamWriter txt = new StreamWriter("crash.log", true))
+                                {
+                                    Log.Panic(e.ToString());
+                                    //try
+                                    //{
+                                    //    using (StreamWriter txt = new StreamWriter("crash.log", true))
+                                    //    {
+                                    //        txt.AutoFlush = true;
+                                    //        txt.WriteLine("Exception @ {0}", Engine.CurrDateTime.ToString("MM-dd-yy HH:mm:ss.ffff"));
+                                    //        txt.WriteLine(e.ToString());
+                                    //        txt.WriteLine("");
+                                    //        txt.WriteLine("");
+                                    //    }
+                                    //}
+                                    //catch
+                                    //{
+                                    //}
+                                }
+                            }
+                            catch
+                            {
+                            }
+                            // ## BEGIN - END ## //
 
                             return true;
                         }
@@ -122,7 +134,7 @@ namespace ClassicUO.Utility
             }
         }
 
-        [MethodImpl(256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool InRect(ref Rectangle rect, ref Rectangle r)
         {
             bool inrect = false;
@@ -221,19 +233,19 @@ namespace ClassicUO.Utility
             }
         }
 
-        [MethodImpl(256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToHex(this uint serial)
         {
             return $"0x{serial:X8}";
         }
 
-        [MethodImpl(256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToHex(this ushort s)
         {
             return $"0x{s:X4}";
         }
 
-        [MethodImpl(256)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ToHex(this byte b)
         {
             return $"0x{b:X2}";

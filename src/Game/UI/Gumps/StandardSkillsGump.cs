@@ -55,7 +55,7 @@ namespace ClassicUO.Game.UI.Gumps
         private readonly List<SkillsGroupControl> _skillsControl = new List<SkillsGroupControl>();
         private readonly Label _skillsLabelSum;
 
-        public StandardSkillsGump() : base(Constants.SKILLSTD_LOCALSERIAL, 0)
+        public StandardSkillsGump() : base(0, 0)
         {
             AcceptMouseInput = false;
             CanMove = true;
@@ -860,7 +860,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             private static SkillButtonGump GetSpellFloatingButton(int id)
             {
-                for (LinkedListNode<Control> i = UIManager.Gumps.Last; i != null; i = i.Previous)
+                for (LinkedListNode<Gump> i = UIManager.Gumps.Last; i != null; i = i.Previous)
                 {
                     if (i.Value is SkillButtonGump g && g.SkillID == id)
                     {
